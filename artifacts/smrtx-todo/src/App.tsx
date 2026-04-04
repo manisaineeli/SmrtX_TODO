@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { AppLayout } from "@/components/layout/AppLayout";
+import FloatingAI from "@/components/FloatingAI";
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -14,6 +15,8 @@ import Pomodoro from "@/pages/Pomodoro";
 import Analytics from "@/pages/Analytics";
 import AI from "@/pages/AI";
 import Settings from "@/pages/Settings";
+import Music from "@/pages/Music";
+import Mood from "@/pages/Mood";
 import { useEffect } from "react";
 import { ThemeProvider } from "next-themes";
 
@@ -24,9 +27,7 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      setLocation("/login");
-    }
+    if (!isAuthenticated) setLocation("/login");
   }, [isAuthenticated, setLocation]);
 
   if (!isAuthenticated) return null;
@@ -34,6 +35,7 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   return (
     <AppLayout>
       <Component />
+      <FloatingAI />
     </AppLayout>
   );
 }
@@ -43,13 +45,10 @@ function PublicRoute({ component: Component }: { component: React.ComponentType 
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (isAuthenticated) {
-      setLocation("/dashboard");
-    }
+    if (isAuthenticated) setLocation("/dashboard");
   }, [isAuthenticated, setLocation]);
 
   if (isAuthenticated) return null;
-
   return <Component />;
 }
 
@@ -74,6 +73,8 @@ function Router() {
       <Route path="/analytics"><ProtectedRoute component={Analytics} /></Route>
       <Route path="/ai"><ProtectedRoute component={AI} /></Route>
       <Route path="/settings"><ProtectedRoute component={Settings} /></Route>
+      <Route path="/music"><ProtectedRoute component={Music} /></Route>
+      <Route path="/mood"><ProtectedRoute component={Mood} /></Route>
       <Route component={NotFound} />
     </Switch>
   );

@@ -149,4 +149,25 @@ router.post("/auth/refresh", async (req, res): Promise<void> => {
   }
 });
 
+router.post("/auth/change-password", async (req, res): Promise<void> => {
+  const token = req.headers["authorization"]?.split(" ")[1];
+  if (!token) { res.status(401).json({ error: "Unauthorized" }); return; }
+  try {
+    const decoded = jwt.verify(token, ACCESS_SECRET) as { userId: string };
+    const { currentPassword, newPassword } = req.body as { currentPassword: string; newPassword: string };
+    if (!currentPassword || !newPassword || newPassword.length < 6) {
+      res.status(400).json({ error: "Invalid password data" }); return;
+    }
+    const user = await UserModel.findById(decoded.userId);
+    if (!user || !(await user.comparePassword(currentPassword))) {
+      res.status(401).json({ error: "Current password is incorrect" }); return;
+    }
+    user.password = newPassword;
+    await user.save();
+    res.json({ message: "Password changed successfully" });
+  } catch {
+    res.status(401).json({ error: "Invalid token" });
+  }
+});
+
 export default router;
